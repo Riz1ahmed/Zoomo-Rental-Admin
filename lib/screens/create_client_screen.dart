@@ -13,9 +13,9 @@ class _CreateClientScreenState extends State<CreateClientScreen> {
   final _formKey = GlobalKey<FormState>();
   final _usernameCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
-  //final _fullNameCtrl = TextEditingController();
-  //final _phoneCtrl = TextEditingController();
-  //final _bikeNumberCtrl = TextEditingController();
+  // final _fullNameCtrl = TextEditingController();
+  // final _phoneCtrl = TextEditingController();
+  // final _bikeNumberCtrl = TextEditingController();
   final _firestore = FirestoreService();
   bool _saving = false;
 
@@ -32,7 +32,7 @@ class _CreateClientScreenState extends State<CreateClientScreen> {
       );
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Client তৈরি হয়েছে। Username/password টা তাকে দিন।')),
+        const SnackBar(content: Text('Client created. Share the username and password with them.')),
       );
       Navigator.of(context).pop();
     } catch (e) {
@@ -54,7 +54,7 @@ class _CreateClientScreenState extends State<CreateClientScreen> {
           children: [
             Text('Login Credentials', style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 4),
-            const Text('এই username/password টা ক্লায়েন্টকে WhatsApp/SMS এ দিয়ে দিবেন।', style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+            const Text('Share these credentials with the client via WhatsApp or SMS.', style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
             const SizedBox(height: 12),
             TextFormField(
               controller: _usernameCtrl,
@@ -68,7 +68,7 @@ class _CreateClientScreenState extends State<CreateClientScreen> {
               validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
             ),
             /*const SizedBox(height: 24),
-            Text('Basic Info (optional, পরে যোগ/এডিট করা যাবে)', style: Theme.of(context).textTheme.titleMedium),
+            Text('Basic Info (optional, can be added or edited later)', style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 12),
             TextFormField(
               controller: _fullNameCtrl,

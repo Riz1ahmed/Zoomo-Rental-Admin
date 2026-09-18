@@ -1,27 +1,27 @@
 # E-Bike Admin App — Setup Guide
 
-## 1. Firebase project বানাও
-1. https://console.firebase.google.com এ গিয়ে নতুন project বানাও (e.g. `ebike-rental`)
-2. Build > Firestore Database > Create database (production mode, nিয়ারest region select করো)
-3. Build > Storage > Get started (পরে document upload যোগ করার সময় লাগবে)
+## 1. Create a Firebase project
+1. Go to https://console.firebase.google.com and create a new project (for example, `ebike-rental`).
+2. Open Build > Firestore Database > Create database (production mode, then choose the nearest region).
+3. Open Build > Storage > Get started (you will need this later for document uploads).
 
-## 2. Flutter app এর সাথে Firebase কানেক্ট করো
+## 2. Connect Firebase to the Flutter app
 ```
 dart pub global activate flutterfire_cli
 flutterfire configure
 ```
-এটা `lib/firebase_options.dart` জেনারেট করবে। এরপর `main.dart` এ এই লাইন দুটো uncomment করো:
+This generates `lib/firebase_options.dart`. Then uncomment these lines in `main.dart`:
 ```dart
 // import 'firebase_options.dart';
 // options: DefaultFirebaseOptions.currentPlatform,
 ```
 
-## 3. Admin account manually তৈরি করো
-Firestore Console এ গিয়ে হাতে একটা collection বানাও:
+## 3. Create the admin account manually
+In the Firestore Console, create a collection manually:
 - Collection: `admins`
 - Document (auto id): `{ username: "your_admin_name", password: "your_password" }`
 
-এই username/password দিয়েই app এ লগইন করবে।
+Use this username and password to log in to the app.
 
 ## 4. Packages install
 ```
@@ -33,12 +33,12 @@ flutter pub get
 flutter run
 ```
 
-## ⚠️ গুরুত্বপূর্ণ নোট — Security
-এই ভার্সনে password গুলো Firestore এ plain text এ রাখা হচ্ছে, এবং client-side থেকে সরাসরি `admins`/`clients` collection query করে login check করা হচ্ছে (কোনো Firebase Auth নেই, তোমার request অনুযায়ী)। এটা শুরু করার জন্য ঠিক আছে, কিন্তু production এ যাওয়ার আগে অন্তত এইগুলো ভেবে দেখা উচিত:
-- **Firestore Security Rules** সেট না করলে যে কেউ তোমার পুরো client list (নাম, ফোন, ডকুমেন্ট) পড়তে/এডিট করতে পারবে যদি তারা app URL/এর data structure জানে। কমপক্ষে rules দিয়ে read/write বন্ধ করে শুধু নির্দিষ্ট admin app থেকেই allow করা উচিত — এটা নিয়ে পরে আলাদা করে বলব যখন এই ধাপে আসবো।
-- Password hash করে রাখা (plain text না রাখা) ভালো অভ্যাস — এটাও পরের ধাপে যোগ করা যায়, আপাতত simplicity এর জন্য বাদ রাখা হয়েছে।
+## ⚠️ Important note — Security
+In this version, passwords are stored in Firestore as plain text, and login is checked by querying the `admins`/`clients` collections directly from the client side (no Firebase Auth, as requested). This is fine for getting started, but before production you should at least consider the following:
+- If Firestore Security Rules are not configured, anyone who knows the app URL or data structure may be able to read or edit the full client list (name, phone, documents). At minimum, use rules to block read/write access and allow only the intended admin app. We can address that in a later step.
+- Storing hashed passwords instead of plain text is a better practice. That can be added later; it is omitted here for simplicity.
 
-## এখন পর্যন্ত যা আছে
+## What is already included
 - Admin login (Firestore-based, no Firebase Auth)
 - Dashboard: summary cards (total / active / due soon / blocked)
 - Create client (username, password, + optional basic info)
@@ -46,8 +46,8 @@ flutter run
 - Client detail: view + edit all info, confirm client, block/unblock, send notification
 - Dark theme throughout
 
-## এখনো বাকি (পরের ধাপে)
-- Document upload (passport / récépissé-séjour / domicile) — Firebase Storage দিয়ে
+## What is still left (next step)
+- Document upload (passport / récépissé-séjour / domicile) — via Firebase Storage
 - Automated payment reminder (Cloud Function)
-- Customer app (আলাদা project, একই Firestore ব্যবহার করবে)
+- Customer app (separate project, using the same Firestore)
 - Firestore Security Rules

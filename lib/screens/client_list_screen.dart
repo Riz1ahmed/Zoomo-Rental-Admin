@@ -77,7 +77,7 @@ class _ClientListScreenState extends State<ClientListScreen> {
                 }
                 final clients = _filter(snapshot.data!);
                 if (clients.isEmpty) {
-                  return const Center(child: Text('কোনো ক্লায়েন্ট পাওয়া যায়নি', style: TextStyle(color: AppColors.textSecondary)));
+                  return const Center(child: Text('No clients found', style: TextStyle(color: AppColors.textSecondary)));
                 }
                 return ListView.separated(
                   padding: const EdgeInsets.symmetric(horizontal: 16),

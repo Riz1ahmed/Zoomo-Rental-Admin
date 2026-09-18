@@ -22,7 +22,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final username = _usernameCtrl.text.trim();
     final password = _passwordCtrl.text.trim();
     if (username.isEmpty || password.isEmpty) {
-      setState(() => _error = 'Username আর password দিন');
+      setState(() => _error = 'Enter your username and password.');
       return;
     }
     setState(() {
@@ -38,10 +38,10 @@ class _LoginScreenState extends State<LoginScreen> {
           MaterialPageRoute(builder: (_) => const DashboardScreen()),
         );
       } else {
-        setState(() => _error = 'ভুল username অথবা password');
+        setState(() => _error = 'Invalid username or password.');
       }
     } catch (e) {
-      setState(() => _error = 'কিছু একটা সমস্যা হয়েছে: $e');
+      setState(() => _error = 'Something went wrong: $e');
     } finally {
       if (mounted) setState(() => _loading = false);
     }

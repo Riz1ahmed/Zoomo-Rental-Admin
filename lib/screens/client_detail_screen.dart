@@ -75,7 +75,7 @@ class _ClientDetailScreenState extends State<ClientDetailScreen> {
         if (_nextPaymentDate != null) 'nextPaymentDate': _nextPaymentDate,
       });
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Saved')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Changes saved')));
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -85,7 +85,7 @@ class _ClientDetailScreenState extends State<ClientDetailScreen> {
     await _firestore.setStatus(widget.clientId, ClientStatus.active);
     await _load();
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Client confirmed — dashboard এখন unlocked')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Client confirmed — dashboard is now unlocked')));
   }
 
   Future<void> _toggleBlock() async {
@@ -110,7 +110,7 @@ class _ClientDetailScreenState extends State<ClientDetailScreen> {
     _notifTitleCtrl.clear();
     _notifMessageCtrl.clear();
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Notification পাঠানো হয়েছে')));
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Notification sent')));
   }
 
   @override
@@ -127,7 +127,7 @@ class _ClientDetailScreenState extends State<ClientDetailScreen> {
           _StatusBanner(client: client, onConfirm: _confirmClient, onToggleBlock: _toggleBlock),
           const SizedBox(height: 20),
 
-          Text('Client Info', style: Theme.of(context).textTheme.titleMedium),
+          Text('Client Information', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 12),
           TextField(controller: _fullNameCtrl, decoration: const InputDecoration(labelText: 'Full Name')),
           const SizedBox(height: 12),
@@ -276,7 +276,7 @@ class _DocumentRow extends StatelessWidget {
       child: ListTile(
         leading: Icon(hasFile ? Icons.description : Icons.description_outlined, color: hasFile ? AppColors.primary : AppColors.textSecondary),
         title: Text(label),
-        subtitle: Text(hasFile ? 'Client আপলোড করেছে' : 'এখনো আপলোড হয়নি', style: const TextStyle(fontSize: 12)),
+        subtitle: Text(hasFile ? 'Uploaded by client' : 'Not uploaded yet', style: const TextStyle(fontSize: 12)),
         trailing: hasFile
             ? TextButton(
           onPressed: () => launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication),
