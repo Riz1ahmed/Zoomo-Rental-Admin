@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../models/client_model.dart';
 import '../services/firestore_service.dart';
 import '../theme.dart';
+import '../widgets/send_notification_dialog.dart';
 
 class ClientDetailScreen extends StatefulWidget {
   final String clientId;
@@ -30,9 +31,6 @@ class _ClientDetailScreenState extends State<ClientDetailScreen> {
   late TextEditingController _referrerPhoneCtrl;
   late TextEditingController _addressCtrl;
   DateTime? _nextPaymentDate;
-
-  final _notifTitleCtrl = TextEditingController();
-  final _notifMessageCtrl = TextEditingController();
 
   @override
   void initState() {
@@ -85,7 +83,7 @@ class _ClientDetailScreenState extends State<ClientDetailScreen> {
     await _firestore.setStatus(widget.clientId, ClientStatus.active);
     await _load();
     if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Client confirmed — dashboard is now unlocked')));
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Client confirmed — dashboard is now unlocked')));
   }
 
   Future<void> _toggleBlock() async {
@@ -104,13 +102,8 @@ class _ClientDetailScreenState extends State<ClientDetailScreen> {
     if (picked != null) setState(() => _nextPaymentDate = picked);
   }
 
-  Future<void> _sendNotification() async {
-    if (_notifTitleCtrl.text.trim().isEmpty) return;
-    await _firestore.sendNotification(widget.clientId, _notifTitleCtrl.text.trim(), _notifMessageCtrl.text.trim());
-    _notifTitleCtrl.clear();
-    _notifMessageCtrl.clear();
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Notification sent')));
+  void _showSendNotificationDialog() {
+    SendNotificationDialog.show(context, widget.clientId);
   }
 
   @override
@@ -124,7 +117,12 @@ class _ClientDetailScreenState extends State<ClientDetailScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          _StatusBanner(client: client, onConfirm: _confirmClient, onToggleBlock: _toggleBlock),
+          _StatusBanner(
+            client: client,
+            onConfirm: _confirmClient,
+            onToggleBlock: _toggleBlock,
+            onSendNotification: _showSendNotificationDialog,
+          ),
           const SizedBox(height: 20),
 
           Text('Client Information', style: Theme.of(context).textTheme.titleMedium),
@@ -166,26 +164,6 @@ class _ClientDetailScreenState extends State<ClientDetailScreen> {
                 : const Text('Save Info'),
           ),
 
-          const SizedBox(height: 32),
-          const Divider(),
-          const SizedBox(height: 16),
-          Text('Send Notification', style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 12),
-          TextField(controller: _notifTitleCtrl, decoration: const InputDecoration(labelText: 'Title')),
-          const SizedBox(height: 12),
-          TextField(controller: _notifMessageCtrl, decoration: const InputDecoration(labelText: 'Message'), maxLines: 3),
-          const SizedBox(height: 12),
-          OutlinedButton.icon(
-            onPressed: _sendNotification,
-            icon: const Icon(Icons.notifications_active_outlined),
-            label: const Text('Send'),
-            style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 14),
-              side: const BorderSide(color: AppColors.border),
-              foregroundColor: AppColors.textPrimary,
-            ),
-          ),
-
           const SizedBox(height: 24),
           Text('Documents', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),
@@ -204,8 +182,14 @@ class _StatusBanner extends StatelessWidget {
   final ClientModel client;
   final VoidCallback onConfirm;
   final VoidCallback onToggleBlock;
+  final VoidCallback onSendNotification;
 
-  const _StatusBanner({required this.client, required this.onConfirm, required this.onToggleBlock});
+  const _StatusBanner({
+    required this.client,
+    required this.onConfirm,
+    required this.onToggleBlock,
+    required this.onSendNotification,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -220,9 +204,12 @@ class _StatusBanner extends StatelessWidget {
                 style: TextStyle(color: _color(client.status), fontWeight: FontWeight.w600),
               ),
             ),
-            if (client.status == ClientStatus.pendingConfirmation)
+            if (client.status == ClientStatus.pendingConfirmation) ...[
+              const SizedBox(width: 4),
               ElevatedButton(onPressed: onConfirm, child: const Text('Confirm')),
-            if (client.status == ClientStatus.active || client.status == ClientStatus.blocked)
+            ],
+            if (client.status == ClientStatus.active || client.status == ClientStatus.blocked) ...[
+              const SizedBox(width: 4),
               OutlinedButton(
                 onPressed: onToggleBlock,
                 style: OutlinedButton.styleFrom(
@@ -231,6 +218,14 @@ class _StatusBanner extends StatelessWidget {
                 ),
                 child: Text(client.status == ClientStatus.blocked ? 'Unblock' : 'Block'),
               ),
+            ],
+            const SizedBox(width: 12),
+            IconButton(
+              icon: const Icon(Icons.notifications_active_outlined),
+              color: AppColors.primary,
+              tooltip: 'Send Notification',
+              onPressed: onSendNotification,
+            ),
           ],
         ),
       ),
@@ -279,9 +274,9 @@ class _DocumentRow extends StatelessWidget {
         subtitle: Text(hasFile ? 'Uploaded by client' : 'Not uploaded yet', style: const TextStyle(fontSize: 12)),
         trailing: hasFile
             ? TextButton(
-          onPressed: () => launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication),
-          child: const Text('Open'),
-        )
+                onPressed: () => launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication),
+                child: const Text('Open'),
+              )
             : null,
       ),
     );
