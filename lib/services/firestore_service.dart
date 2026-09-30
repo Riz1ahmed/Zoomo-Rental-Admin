@@ -1,6 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/client_model.dart';
 
+class DuplicateClientUsernameException implements Exception {
+  @override
+  String toString() => 'A client with this username already exists.';
+}
+
 /// All Firestore reads/writes go through here, so screens never touch
 /// FirebaseFirestore directly. Makes it trivial to change collection
 /// names or add caching later without hunting through every screen.
@@ -33,22 +38,27 @@ class FirestoreService {
     return ClientModel.fromDoc(doc);
   }
 
+  Future<bool> usernameExists(String username) async {
+    final query = await _clients.where('username', isEqualTo: username).limit(1).get();
+    return query.docs.isNotEmpty;
+  }
+
   /// Creates a client with just login credentials + whatever the admin
   /// already knows. Everything else gets filled in later by the client
   /// or the admin.
   Future<void> createClient({
     required String username,
     required String password,
-    String fullName = '',
-    String phone = '',
-    String bikeNumber = '',
   }) async {
+    if (await usernameExists(username)) {
+      throw DuplicateClientUsernameException();
+    }
     await _clients.add({
       'username': username,
       'password': password,
-      'fullName': fullName,
-      'phone': phone,
-      'bikeNumber': bikeNumber,
+      'fullName': '',
+      'phone': '',
+      'bikeNumber': '',
       'battery1': '',
       'battery2': '',
       'rentalAmount': '',
