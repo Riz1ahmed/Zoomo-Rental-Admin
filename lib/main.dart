@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'theme.dart';
+import 'screens/dashboard_screen.dart';
 import 'screens/login_screen.dart';
+import 'services/session.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
@@ -9,6 +11,7 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  await Session.instance.init();
   runApp(const AdminApp());
 }
 
@@ -21,7 +24,9 @@ class AdminApp extends StatelessWidget {
       title: 'E-Bike Admin',
       debugShowCheckedModeBanner: false,
       theme: buildAppTheme(),
-      home: const LoginScreen(),
+      home: Session.instance.isLoggedIn
+          ? const DashboardScreen()
+          : const LoginScreen(),
     );
   }
 }

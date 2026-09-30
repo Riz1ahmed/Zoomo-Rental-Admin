@@ -28,8 +28,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     if (mounted) setState(() => _summary = summary);
   }
 
-  void _logout() {
-    Session.instance.logout();
+  Future<void> _logout() async {
+    await Session.instance.logout();
+    if (!mounted) return;
     Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const LoginScreen()));
   }
 

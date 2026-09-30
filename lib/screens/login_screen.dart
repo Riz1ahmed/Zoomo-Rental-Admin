@@ -33,7 +33,8 @@ class _LoginScreenState extends State<LoginScreen> {
       final ok = await _firestore.checkAdminCredentials(username, password);
       if (!mounted) return;
       if (ok) {
-        Session.instance.login(username);
+        await Session.instance.login(username);
+        if (!mounted) return;
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (_) => const DashboardScreen()),
         );
