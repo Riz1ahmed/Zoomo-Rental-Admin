@@ -139,21 +139,41 @@ class _ClientDetailScreenState extends State<ClientDetailScreen> {
             Expanded(child: TextField(controller: _battery2Ctrl, decoration: const InputDecoration(labelText: 'Battery No. 2'))),
           ]),
           const SizedBox(height: 12),
-          TextField(controller: _rentalAmountCtrl, decoration: const InputDecoration(labelText: 'Rental Amount')),
-          const SizedBox(height: 12),
-          TextField(controller: _addressCtrl, decoration: const InputDecoration(labelText: 'Full Address'), maxLines: 2),
+          TextField(controller: _addressCtrl, decoration: const InputDecoration(labelText: 'Current Address'), maxLines: 2),
           const SizedBox(height: 12),
           TextField(controller: _referrerNameCtrl, decoration: const InputDecoration(labelText: 'Referer Full Name')),
           const SizedBox(height: 12),
           TextField(controller: _referrerPhoneCtrl, decoration: const InputDecoration(labelText: 'Referer Phone Number')),
           const SizedBox(height: 16),
-          InkWell(
-            onTap: _pickDate,
-            child: InputDecorator(
-              decoration: const InputDecoration(labelText: 'Next Payment Date'),
-              child: Text(
-                _nextPaymentDate != null ? DateFormat('dd MMM yyyy').format(_nextPaymentDate!) : 'Select date',
-              ),
+
+
+          Expanded(
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 110,
+                  child: TextField(
+                    controller: _rentalAmountCtrl,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(labelText: 'Amount'),
+                  ),
+                ),
+
+                const SizedBox(width: 12),
+                Expanded(
+                  child: InkWell(
+                    onTap: _pickDate,
+                    child: InputDecorator(
+                      decoration: const InputDecoration(labelText: 'Next Payment Date'),
+                      child: Text(
+                        _nextPaymentDate != null ? DateFormat('dd MMM yyyy').format(_nextPaymentDate!) : 'Select date',
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                ElevatedButton(onPressed: _confirmPayment, child: const Text('Is Paid?'),),
+              ],
             ),
           ),
           const SizedBox(height: 20),
@@ -175,6 +195,28 @@ class _ClientDetailScreenState extends State<ClientDetailScreen> {
         ],
       ),
     );
+  }
+
+  void _confirmPayment() {
+    showDialog(context: context, builder: (_) => AlertDialog(
+      title: const Text('Confirm Payment'),
+      content: const Text(
+          "Confirm this month's payment for this client? Once confirmed, the user will receive a payment confirmation notification, and the next payment date will be updated."
+      ),
+      actions: [
+        TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel')),
+        ElevatedButton(
+          onPressed: () async {
+            Navigator.of(context).pop();
+            /*await _firestore.confirmPayment(widget.clientId);
+            await _load();*/
+            if (!mounted) return;
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Payment confirmed')));
+          },
+          child: const Text('Confirm'),
+        ),
+      ],
+    ));
   }
 }
 
